@@ -1,0 +1,79 @@
+---
+title: "Statistical Inference Project2 - Tooth Data"
+author: "Diane Clow"
+date: "August 22, 2015"
+output: html_document
+---
+
+#### Introduction
+
+This is the Second Course Project for Statistical Inference.  The assignment asks students to analyse the data in the ToothGrowth dataset in R and run some analysis.
+
+To complete this assignment I will:
+
+- load the ToothGrowth data set and perform exploritory analysis
+
+- provide a basic summary
+
+- compare tooth growth by supp and dose
+
+- state my conclusion and assumptions needed
+
+#### Exploratory Analysis
+
+```{r, load data}
+library(ggplot2)
+data(ToothGrowth)
+head(ToothGrowth)
+```
+
+The three variables in this data set are: len - numeric, the length of the tooth, supp - factor, the supplement type (VC or OJ), dose - numeric, dose in milligrams/day.  VC is ascorbic acid, a form of vitamin C and OJ stands for Orange Juice.
+
+The following graph shows box plots broken up by supplement and dose.
+
+```{r}
+ggplot(ToothGrowth, aes(factor(supp), len)) + geom_boxplot() + facet_grid(. ~ dose)
+```
+
+#### Basis Summary
+
+Shown below is the summary information for the data set ToothGrowth.  Below that is the data aggregrated for mean and standard deviation on both supp and dose.
+
+```{r, summary}
+summary(ToothGrowth)
+
+aggregate(ToothGrowth$len, by=list(ToothGrowth$supp, ToothGrowth$dose), FUN=mean)
+
+aggregate(ToothGrowth$len, by=list(ToothGrowth$supp, ToothGrowth$dose), FUN=sd)
+```
+
+#### Comparison
+
+```{r}
+OJ0.5 <- subset(ToothGrowth, supp == "OJ" & dose == 0.5)
+VC0.5 <- subset(ToothGrowth, supp == "VC" & dose == 0.5)
+OJ1 <- subset(ToothGrowth, supp == "OJ" & dose == 1)
+VC1 <- subset(ToothGrowth, supp == "VC" & dose == 1)
+OJ2 <- subset(ToothGrowth, supp == "OJ" & dose == 2)
+VC2 <- subset(ToothGrowth, supp == "VC" & dose == 2)
+```
+
+For each dose size a t-test will be preformed. For all these test, I will be testing if the length with OJ is the same as the length with VC.  If the lengths are the same, I will accept my null hypothosis and 0 will be within the confidence interval.  If 0 is not within the confidence interval, the alternate hypothosis will be accepted, that OJ has a greater impact on teeth length.  The confidance level for the following tests is 0.95.  This means that there is a 5% chance they will produce false results.
+
+H_0 <- Both supplements have the same impact
+
+H_a <- OJ has a larger impact that VC
+
+Sig <- .95
+
+```{r}
+t.test(OJ0.5$len - VC0.5$len, paired = FALSE, var.equal = FALSE)
+t.test(OJ1$len - VC1$len, paired = FALSE, var.equal = FALSE)
+t.test(OJ2$len - VC2$len, paired = FALSE, var.equal = FALSE)
+```
+
+#### Conclusion
+
+In analysing this data set a couple of assumptions were made.  The guinea pigs were a representative sample of the total population, and that the change in the supplamant is the only variations between the two samples.  There is nothing in the documentation to say that the samples are paired, so it is assumed that the samples are independant.
+
+As shown in the tests above only with the dosage = 2, is the difference between OJ and VC statistically insignificant.  For both of the lower dosages, OJ has an impact on the length.  
